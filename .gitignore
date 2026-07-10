@@ -1,0 +1,9 @@
+# .gitignore
+.env
+data/
+__pycache__/
+*.pyc
+*.parquet
+*.csv
+venv/
+.DS_Store

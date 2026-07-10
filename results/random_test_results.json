@@ -1,0 +1,325 @@
+{
+  "summary": {
+    "total_samples": 20,
+    "source_file": "data/training_pair_v5_clean.csv",
+    "seed": null,
+    "accuracy": 100.0,
+    "correct": 20,
+    "incorrect": 0,
+    "confusion_matrix": {
+      "true_negatives": 9,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "true_positives": 11
+    },
+    "classification_report": {
+      "Human": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 9.0
+      },
+      "AI": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 11.0
+      },
+      "accuracy": 1.0,
+      "macro avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 20.0
+      },
+      "weighted avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 20.0
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "id": 1,
+      "source_id": "ai_europarl_speech_0164190",
+      "domain": "europarl_speech",
+      "input_text": "Analyse: Landesplanung und Raumordnung 1. Ausgangslage Wenn wir ehrlich sind, müssen wir zugeben: Bisher war die Bilanz durchwachsen. Die derzeitige Rechtslage weist in mehreren Punkten Defizite auf. ...",
+      "original_tag": "ai",
+      "prediction": {
+        "predicted_label": "AI-Generated",
+        "confidence": 99.77999877929688,
+        "probability_ai": 99.77999877929688,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 2,
+      "source_id": "4736_Markus Grübel_2",
+      "domain": "bundestag_speech",
+      "input_text": "Beim Thema Religionsfreiheit fangen wir nicht bei null an. Schon 1999 hat die CDU/CSU-Fraktion eine Große Anfrage zur Christenverfolgung und zur Religionsfreiheit an die rot-grüne Bundesregierung geri...",
+      "original_tag": "human",
+      "prediction": {
+        "predicted_label": "Human-Written",
+        "confidence": 62.65999984741211,
+        "probability_ai": 37.34000015258789,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 3,
+      "source_id": "ID209503400_seg0003",
+      "domain": "bundestag_speech",
+      "input_text": "Trotzdem möchte ich den Bürgerinnen und Bürgern im Osten Deutschlands, von denen sich der eine oder andere in der Diskussion gegenwärtig vielleicht in der alten Sowjetromantik befindet, sagen: Wenn es...",
+      "original_tag": "human",
+      "prediction": {
+        "predicted_label": "Human-Written",
+        "confidence": 71.08000183105469,
+        "probability_ai": 28.920000076293945,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 4,
+      "source_id": "5595_Franziska Hoppermann_3",
+      "domain": "bundestag_speech",
+      "input_text": "Sie ist ein „aktualisiertes Pflichtenheft“, wie der Bitkom schon schreibt. Es sind übrigens eins zu eins die gleichen Abschnitte wie in unserer Datenstrategie aus dem Jahr 2021, nur ohne konkrete Ziel...",
+      "original_tag": "human",
+      "prediction": {
+        "predicted_label": "Human-Written",
+        "confidence": 99.73999786376953,
+        "probability_ai": 0.25999999046325684,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 5,
+      "source_id": "eupdcorp_6322_0",
+      "domain": "europarl_speech",
+      "input_text": "Herr Präsident, liebe Kolleginnen und Kollegen! Für die Sozialdemokratische Fraktion möchte ich ebenfalls den Kollegen Alvaro und Lauk für die gute Zusammenarbeit danken. Wir sind uns in der Frage, wi...",
+      "original_tag": "human",
+      "prediction": {
+        "predicted_label": "Human-Written",
+        "confidence": 99.8499984741211,
+        "probability_ai": 0.15000000596046448,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 6,
+      "source_id": "4761_Bernhard Daldrup_6",
+      "domain": "bundestag_speech",
+      "input_text": "Dafür brauchen wir gleichwertige Lebensbedingungen, und darum kümmern wir uns. Im Übrigen kümmern wir uns darum, indem wir heute im Bauausschuss beschlossen haben, dass wir vierteljährliche Berichters...",
+      "original_tag": "human",
+      "prediction": {
+        "predicted_label": "Human-Written",
+        "confidence": 96.8499984741211,
+        "probability_ai": 3.1500000953674316,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 7,
+      "source_id": "ai_state_law_0183011",
+      "domain": "state_law",
+      "input_text": "Begründung zum Gesetzentwurf zur Umsatzsteuer und Vorsteuerabzug A. Allgemeiner Teil Ziel des Gesetzentwurfs ist es, die Rechtslage für Umsatzsteuer und Vorsteuerabzug zeitgemäß zu gestalten. Die Kost...",
+      "original_tag": "ai",
+      "prediction": {
+        "predicted_label": "AI-Generated",
+        "confidence": 99.81999969482422,
+        "probability_ai": 99.81999969482422,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 8,
+      "source_id": "ai_bundestag_speech_0045052",
+      "domain": "bundestag_speech",
+      "input_text": "Sehr geehrte Frau Präsidentin! Es ist ein guter Tag für die Demokratie, dass wir uns dieser wichtigen Frage widmen. Gemeindefinanzreform ist ein Thema, das in der Öffentlichkeit intensiv diskutiert wi...",
+      "original_tag": "ai",
+      "prediction": {
+        "predicted_label": "AI-Generated",
+        "confidence": 99.41999816894531,
+        "probability_ai": 99.41999816894531,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 9,
+      "source_id": "ai_europarl_speech_0167291",
+      "domain": "europarl_speech",
+      "input_text": "Herr Ministerpräsident! Liebe Kolleginnen und Kollegen! Der vorliegende Entwurf markiert einen Wendepunkt in der deutschen Gesetzgebung. Pflanzenschutzgesetz ist ein Thema, das in der Öffentlichkeit i...",
+      "original_tag": "ai",
+      "prediction": {
+        "predicted_label": "AI-Generated",
+        "confidence": 99.01000213623047,
+        "probability_ai": 99.01000213623047,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 10,
+      "source_id": "ai_bundestag_speech_0072134",
+      "domain": "bundestag_speech",
+      "input_text": "Frau Präsidentin! Liebe Kolleginnen und Kollegen! Lassen Sie mich drei Vorbemerkungen vorausschicken. Gemeindefinanzreform ist ein Thema, das in der Öffentlichkeit intensiv diskutiert wird. CDU/CSU ha...",
+      "original_tag": "ai",
+      "prediction": {
+        "predicted_label": "AI-Generated",
+        "confidence": 95.08999633789062,
+        "probability_ai": 95.08999633789062,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 11,
+      "source_id": "gesetz_schrego_62",
+      "domain": "state_law",
+      "input_text": "(2) Die Landesregierungen können durch Rechtsverordnung bestimmen, dass 1.ein maschinell geführtes Register wieder in Papierform geführt wird,2.der elektronische Rechtsverkehr eingestellt wird oder3.e...",
+      "original_tag": "human",
+      "prediction": {
+        "predicted_label": "Human-Written",
+        "confidence": 98.3499984741211,
+        "probability_ai": 1.649999976158142,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 12,
+      "source_id": "ai_state_law_0223002",
+      "domain": "state_law",
+      "input_text": "Analyse: Betriebsrente und bAV-Reform 1. Ausgangslage Meine Damen und Herren, ich bin nicht hier, um wohlfeile Reden zu schlagen. Die derzeitige Rechtslage weist in mehreren Punkten Defizite auf. Die ...",
+      "original_tag": "ai",
+      "prediction": {
+        "predicted_label": "AI-Generated",
+        "confidence": 99.87999725341797,
+        "probability_ai": 99.87999725341797,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 13,
+      "source_id": "ID192010700_seg0003",
+      "domain": "bundestag_speech",
+      "input_text": "Ja, meine Damen und Herren, Normalarbeitsverhältnisse sind in den letzten Jahren massiv ausgehöhlt worden. Kommen Sie bitte zum Schluss, Frau Kollegin. Jawohl. – Eine Folge davon sind ungesicherte Bes...",
+      "original_tag": "human",
+      "prediction": {
+        "predicted_label": "Human-Written",
+        "confidence": 99.87999725341797,
+        "probability_ai": 0.11999999731779099,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 14,
+      "source_id": "ai_state_law_0199670",
+      "domain": "state_law",
+      "input_text": "Begründung zum Gesetzentwurf zur Aufenthaltsgesetz A. Allgemeiner Teil Ziel des Gesetzentwurfs ist es, die Rechtslage für Aufenthaltsgesetz zeitgemäß zu gestalten. Nachhaltige Entwicklung ist ohne ein...",
+      "original_tag": "ai",
+      "prediction": {
+        "predicted_label": "AI-Generated",
+        "confidence": 99.83999633789062,
+        "probability_ai": 99.83999633789062,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 15,
+      "source_id": "ai_bundestag_speech_0000185",
+      "domain": "bundestag_speech",
+      "input_text": "Sehr geehrter Herr Präsident! Meine Damen und Herren, ich bin nicht hier, um wohlfeile Reden zu schlagen. Onlinezugangsgesetz ist ein Thema, das uns alle angeht. die durchschnittlichen Kosten belaufen...",
+      "original_tag": "ai",
+      "prediction": {
+        "predicted_label": "AI-Generated",
+        "confidence": 96.91999816894531,
+        "probability_ai": 96.91999816894531,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 16,
+      "source_id": "ai_state_law_0228430",
+      "domain": "state_law",
+      "input_text": "§ 30 Regelungen zur Tierarzneimittelrecht (1) Der Träger der Maßnahme hat nachzuweisen, dass nach Anhörung. Die Vorschriften dieses Gesetzes sind zu beachten. (2) Der Verantwortliche ist zu beachten, ...",
+      "original_tag": "ai",
+      "prediction": {
+        "predicted_label": "AI-Generated",
+        "confidence": 99.81999969482422,
+        "probability_ai": 99.81999969482422,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 17,
+      "source_id": "ai_state_law_0223434",
+      "domain": "state_law",
+      "input_text": "Begründung zum Gesetzentwurf zur Allgemeines Gleichbehandlungsgesetz A. Allgemeiner Teil Ziel des Gesetzentwurfs ist es, die Rechtslage für Allgemeines Gleichbehandlungsgesetz zeitgemäß zu gestalten. ...",
+      "original_tag": "ai",
+      "prediction": {
+        "predicted_label": "AI-Generated",
+        "confidence": 99.80999755859375,
+        "probability_ai": 99.80999755859375,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 18,
+      "source_id": "ai_bundestag_speech_0068091",
+      "domain": "bundestag_speech",
+      "input_text": "Wenn wir ehrlich sind, müssen wir zugeben: Bisher war die Bilanz durchwachsen. Pflegereform und Fachkräftemangel ist ein Thema, zu dem ich mich äußern möchte. Unabhängig davon: Die bestehenden Sanktio...",
+      "original_tag": "ai",
+      "prediction": {
+        "predicted_label": "AI-Generated",
+        "confidence": 97.86000061035156,
+        "probability_ai": 97.86000061035156,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 19,
+      "source_id": "gesetz_khfeverbg_5",
+      "domain": "state_law",
+      "input_text": "(2) Pelztiere im Sinne dieses Gesetzes sind Tiere der Arten Nerz (Neovison vison), Iltis (Mustela putorius), Rotfuchs (Vulpes vulpes), Polarfuchs (Alopex lagopus), Sumpfbiber (Myocastor coypus), Chinc...",
+      "original_tag": "human",
+      "prediction": {
+        "predicted_label": "Human-Written",
+        "confidence": 46.61000061035156,
+        "probability_ai": 53.38999938964844,
+        "threshold": 60.0
+      },
+      "correct": true
+    },
+    {
+      "id": 20,
+      "source_id": "5498_Kathrin Michel_5",
+      "domain": "bundestag_speech",
+      "input_text": "Es war uns ein Herzensbedürfnis, sie jetzt zusätzlich mit 59 Millionen Euro zu unterstützen, damit eben der Abgabesatz für die Sozialversicherung stabilisiert wird. Uns Berichterstattenden der Ampel l...",
+      "original_tag": "human",
+      "prediction": {
+        "predicted_label": "Human-Written",
+        "confidence": 99.91000366210938,
+        "probability_ai": 0.09000000357627869,
+        "threshold": 60.0
+      },
+      "correct": true
+    }
+  ]
+}
