@@ -26,8 +26,8 @@ st.set_page_config(
 )
 
 # Paths
-MODEL_PATH = "models/xgboost_model_clean.pkl"
-METADATA_PATH = "models/model_metadata_clean.json"
+MODEL_PATH = "models/xgboost_model_optimized.pkl"
+METADATA_PATH = "models/model_metadata_optimized.json"
 
 # Preset examples
 EXAMPLES = {
@@ -244,11 +244,17 @@ with col2:
         else:
             with st.spinner("Extracting features and predicting..."):
                 # Extract features
-                features = extractor.extract_features(user_text, nlp)
-                feature_df = pd.DataFrame([features])[metadata['feature_names']]
+                features_dict = extractor.extract_features(user_text, nlp)
+                features = pd.DataFrame([features_dict])[metadata['feature_names']]
+                
+                # Print requested checks immediately before prediction
+                print(features.columns.tolist())
+                print(features)
+                print(features.dtypes)
+                print(model.get_booster().feature_names)
                 
                 # Predict
-                proba_ai = model.predict_proba(feature_df)[0, 1]
+                proba_ai = model.predict_proba(features)[0, 1]
                 threshold = metadata['threshold']
                 is_ai = proba_ai >= threshold
                 confidence = proba_ai if is_ai else (1.0 - proba_ai)
@@ -279,8 +285,8 @@ with col2:
                 # Display feature details in expandable table
                 with st.expander("📊 Show Extracted Features for this Text"):
                     feature_display = pd.DataFrame({
-                        'Feature Name': features.keys(),
-                        'Extracted Value': features.values()
+                        'Feature Name': list(features_dict.keys()),
+                        'Extracted Value': list(features_dict.values())
                     })
                     st.dataframe(feature_display, use_container_width=True, hide_index=True)
                     

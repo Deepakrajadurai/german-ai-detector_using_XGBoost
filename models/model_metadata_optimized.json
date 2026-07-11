@@ -1,0 +1,48 @@
+{
+  "scale_pos_weight": 1,
+  "threshold": 0.6800000000000002,
+  "feature_names": [
+    "citation_density",
+    "structure_entropy",
+    "nominalization_ratio",
+    "passive_ratio",
+    "modal_particle_ratio",
+    "jargon_consistency",
+    "authority_ratio",
+    "avg_word_length",
+    "type_token_ratio",
+    "function_word_ratio",
+    "capitalization_ratio",
+    "abbreviation_ratio",
+    "parenthetical_ratio",
+    "punctuation_entropy",
+    "clause_density",
+    "word_count",
+    "man_ratio"
+  ],
+  "hyperparameters": {
+    "max_depth": 8,
+    "learning_rate": 0.15,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8
+  },
+  "performance": {
+    "accuracy": 0.9802380624109563,
+    "precision": 0.9816991656294657,
+    "recall": 0.9787214485959833,
+    "f1": 0.9802080456595784,
+    "roc_auc": 0.9982593982540833,
+    "fpr": 0.0182453237740705,
+    "confusion_matrix": [
+      [
+        21362,
+        397
+      ],
+      [
+        463,
+        21296
+      ]
+    ]
+  },
+  "timestamp": "2026-07-11T01:50:15.053398"
+}

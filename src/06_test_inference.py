@@ -155,10 +155,10 @@ class LegalFeatureExtractor:
 # ============================================================
 def load_model():
     """Load the trained XGBoost model and metadata."""
-    with open("models/xgboost_model.pkl", "rb") as f:
+    with open("models/xgboost_model_optimized.pkl", "rb") as f:
         model = pickle.load(f)
     
-    with open("models/model_metadata.json", "r") as f:
+    with open("models/model_metadata_optimized.json", "r") as f:
         metadata = json.load(f)
     
     return model, metadata
@@ -201,20 +201,20 @@ def predict_text(text, model, metadata, extractor):
 # ============================================================
 def main():
     print("=" * 60)
-    print("🧪 GERMAN AI DETECTOR - TEST MODE")
+    print("GERMAN AI DETECTOR - TEST MODE")
     print("=" * 60)
     
     # Load model
     try:
         model, metadata = load_model()
         extractor = LegalFeatureExtractor()
-        print(f"✅ Model loaded successfully!")
+        print(f"Model loaded successfully!")
         print(f"   Threshold: {metadata.get('threshold', 0.5)*100:.1f}%")
         print(f"   Precision on validation: {metadata['performance']['precision']:.2%}")
         print(f"   ROC-AUC on validation: {metadata['performance']['roc_auc']:.2%}")
         print("=" * 60)
     except FileNotFoundError as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
         print("   Make sure you've run 05_train_xgboost.py first!")
         return
     
@@ -223,9 +223,9 @@ def main():
     if len(sys.argv) > 1:
         text = " ".join(sys.argv[1:])
         result = predict_text(text, model, metadata, extractor)
-        print("\n📝 INPUT TEXT:")
+        print("\nINPUT TEXT:")
         print(f"   {result['text']}")
-        print("\n🔮 PREDICTION:")
+        print("\nPREDICTION:")
         print(f"   Label: {result['label']}")
         print(f"   Confidence: {result['confidence']:.1f}%")
         print(f"   AI Probability: {result['probability_ai']:.1f}%")
@@ -233,21 +233,21 @@ def main():
         return
     
     # Interactive mode
-    print("\n📖 Enter a German sentence from Law/Public Admin domain.")
+    print("\nEnter a German sentence from Law/Public Admin domain.")
     print("   Type 'quit' to exit.\n")
     
     while True:
         text = input("> ").strip()
         if text.lower() in ['quit', 'exit', 'q']:
-            print("👋 Goodbye!")
+            print("Goodbye!")
             break
         if not text:
             continue
         
         result = predict_text(text, model, metadata, extractor)
         print("\n" + "-" * 40)
-        print(f"📝 Text: {result['text']}")
-        print(f"🔮 Prediction: {result['label']}")
+        print(f"Text: {result['text']}")
+        print(f"Prediction: {result['label']}")
         print(f"   Confidence: {result['confidence']:.1f}%")
         print(f"   AI Probability: {result['probability_ai']:.1f}%")
         print("-" * 40 + "\n")
