@@ -28,34 +28,7 @@ st.set_page_config(
 MODEL_PATH = "models/xgboost_model_optimized.pkl"
 METADATA_PATH = "models/model_metadata_optimized.json"
 
-# Preset examples
-EXAMPLES = {
-    "--- Select an Example ---": "",
-    "Example 1: Human-Written (VwVfG legal reference)": (
-        "Ein Verwaltungsakt ist jede Verfügung, Entscheidung oder andere behördliche Maßnahme, "
-        "die eine Behörde zur Regelung eines Einzelfalls auf dem Gebiet des öffentlichen Rechts "
-        "trifft und die auf unmittelbare Rechtswirkung nach außen gerichtet ist. Dies ergibt sich aus "
-        "§ 35 Satz 1 des Verwaltungsverfahrensgesetzes (VwVfG)."
-    ),
-    "Example 2: AI-Generated (Smooth flow, typical AI style)": (
-        "Es ist von entscheidender Bedeutung zu betonen, dass der vorliegende Gesetzentwurf "
-        "eine wesentliche Verbesserung für alle Bürgerinnen und Bürger darstellt. Durch die gezielte "
-        "Förderung von zukunftsfähigen Infrastrukturprojekten schaffen wir die Grundlage für ein "
-        "nachhaltiges Wirtschaftswachstum und sichern somit langfristig den Wohlstand unseres Landes."
-    ),
-    "Example 3: Human-Written (Administrative notification)": (
-        "Ihrem Widerspruch vom 12. Februar gegen den Bescheid über die Festsetzung der Grundsteuer "
-        "wird hiermit abgeholfen. Der angefochtene Bescheid wird aufgehoben. Ein neuer Bescheid "
-        "geht Ihnen in den nächsten Tagen per Post zu. Die Kosten des Widerspruchsverfahrens trägt "
-        "die Staatskasse. Mit freundlichen Grüßen, im Auftrag."
-    ),
-    "Example 4: AI-Generated (More clinical administrative text)": (
-        "Im Rahmen der Prüfung der Zulässigkeit des Antrags wurde festgestellt, dass die gesetzlich "
-        "vorgeschriebenen Voraussetzungen für eine positive Entscheidung derzeit nicht erfüllt sind. "
-        "Daher wird dem Antragsteller dringend nahegelegt, die fehlenden Nachweise und Unterlagen "
-        "innerhalb der gesetzten Frist von zwei Wochen nachzureichen, um eine Ablehnung abzuwenden."
-    )
-}
+
 
 
 class LegalFeatureExtractor:
@@ -252,17 +225,10 @@ col1, col2 = st.columns([1, 1])
 with col1:
     st.header("📝 User Input")
     
-    # Preset Examples dropdown
-    selected_preset = st.selectbox(
-        "Load a preset example sentence:",
-        options=list(EXAMPLES.keys())
-    )
-    
     # Text input
-    default_text = EXAMPLES[selected_preset] if selected_preset != "--- Select an Example ---" else ""
     user_text = st.text_area(
         "Enter/paste your German text to test here:",
-        value=default_text,
+        value="",
         height=220,
         placeholder="Schreiben Sie hier Ihren deutschen Text..."
     )
