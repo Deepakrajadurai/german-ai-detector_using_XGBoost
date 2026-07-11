@@ -149,7 +149,12 @@ class LegalFeatureExtractor:
 @st.cache_resource
 def load_nlp():
     # Return spaCy German model with parser enabled for sentence splitting
-    return spacy.load("de_core_news_sm")
+    try:
+        return spacy.load("de_core_news_sm")
+    except OSError:
+        from spacy.cli import download
+        download("de_core_news_sm")
+        return spacy.load("de_core_news_sm")
 
 @st.cache_resource
 def load_xgboost_model():
