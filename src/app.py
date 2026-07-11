@@ -1,6 +1,6 @@
 """
 Streamlit Web App for German AI Detector (XGBoost).
-Provides interactive user testing for administrative/legal German texts.
+Provides interactive sentence-by-sentence analysis for administrative/legal German texts.
 """
 
 import os
@@ -15,11 +15,10 @@ import pandas as pd
 import spacy
 from collections import Counter
 import re
-import matplotlib.pyplot as plt
 
 # Page config
 st.set_page_config(
-    page_title="German AI Detector - Interactive Testing",
+    page_title="German AI Detector - Sentence Analysis",
     page_icon="🇩🇪",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -82,7 +81,7 @@ class LegalFeatureExtractor:
         self.closings = ['mit freundlichen grüßen', 'im auftrag', 'hochachtungsvoll']
 
     def extract_features(self, text, nlp):
-        """Extract all 18 features from a single sentence."""
+        """Extract all features from a single sentence."""
         if not text or len(text.strip()) < 3:
             return self._default_features()
         
@@ -149,6 +148,7 @@ class LegalFeatureExtractor:
 # Cache spaCy and model
 @st.cache_resource
 def load_nlp():
+    # Return spaCy German model with parser enabled for sentence splitting
     return spacy.load("de_core_news_sm")
 
 @st.cache_resource
@@ -167,7 +167,7 @@ nlp = load_nlp()
 model, metadata = load_xgboost_model()
 extractor = LegalFeatureExtractor()
 
-# CSS adjustments for cleaner design
+# CSS adjustments for clean, premium design
 st.markdown("""
 <style>
     .prediction-card {
@@ -178,32 +178,61 @@ st.markdown("""
         margin-bottom: 20px;
     }
     .human-card {
-        background-color: #2e7d32;
-        border: 2px solid #1b5e20;
+        background-color: #1b5e20;
+        border: 2px solid #2e7d32;
     }
     .ai-card {
-        background-color: #c62828;
-        border: 2px solid #b71c1c;
+        background-color: #b71c1c;
+        border: 2px solid #c62828;
+    }
+    .warning-card {
+        background-color: #e65100;
+        border: 2px solid #ef6c00;
+    }
+    .sentence-highlight-ai {
+        background-color: rgba(239, 83, 80, 0.3);
+        border-bottom: 2px solid #ef5350;
+        padding: 2px 4px;
+        border-radius: 4px;
+    }
+    .sentence-highlight-human {
+        background-color: rgba(102, 187, 106, 0.15);
+        border-bottom: 2px dotted #66bb6a;
+        padding: 2px 4px;
+        border-radius: 4px;
+    }
+    .sentence-item {
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        background-color: #f1f3f5;
+        border-left: 5px solid #ccc;
+    }
+    .sentence-item-ai {
+        border-left-color: #ef5350;
+    }
+    .sentence-item-human {
+        border-left-color: #66bb6a;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # Main Title Layout
-st.title("🇩🇪 German AI Detector (XGBoost)")
-st.subheader("Interactive User Testing for Administrative & Legal Texts")
+st.title("🇩🇪 German AI Detector (Sentence-Level)")
+st.subheader("Interactive Sentence-by-Sentence Analysis for Administrative & Legal German")
 st.write(
-    "Detect whether a German sentence is **Human-Written** or **AI-Generated** using an optimized XGBoost classifier "
-    "trained on handcrafted linguistic and syntactic features."
+    "Paste a paragraph or document below. The model splits the input into individual sentences and "
+    "evaluates each one using a sentence-level XGBoost classifier."
 )
 
 # Sidebar
 st.sidebar.header("📊 Model Specifications")
 if metadata:
-    st.sidebar.metric(label="Model Type", value="XGBoost Classifier")
-    st.sidebar.metric(label="Total Dataset Size", value="435,178 rows")
+    st.sidebar.metric(label="Model Type", value="Sentence-Level XGBoost")
+    st.sidebar.metric(label="Sentence Dataset Size", value="300,000 sentences")
     st.sidebar.metric(label="Test Set Accuracy", value=f"{metadata['performance']['accuracy']:.2%}")
     st.sidebar.metric(label="FPR (False Positive Rate)", value=f"{metadata['performance']['fpr']:.2%}")
-    st.sidebar.metric(label="Detection Threshold", value=f"{metadata['threshold']:.2f}")
+    st.sidebar.metric(label="Sentence Detection Threshold", value=f"{metadata['threshold']:.2f}")
     
     st.sidebar.markdown("---")
     st.sidebar.write("**Extracted Features**:")
@@ -229,11 +258,11 @@ with col1:
     user_text = st.text_area(
         "Enter/paste your German text to test here:",
         value=default_text,
-        height=200,
+        height=220,
         placeholder="Schreiben Sie hier Ihren deutschen Text..."
     )
     
-    detect_clicked = st.button("Detect AI Probability", type="primary", use_container_width=True)
+    detect_clicked = st.button("Analyze Text Block", type="primary", use_container_width=True)
 
 with col2:
     st.header("🔮 Prediction & Explanation")
@@ -242,59 +271,107 @@ with col2:
         if model is None or metadata is None:
             st.error("Model files are not loaded correctly. Ensure training has completed.")
         else:
-            with st.spinner("Extracting features and predicting..."):
-                # Extract features
-                features_dict = extractor.extract_features(user_text, nlp)
-                features = pd.DataFrame([features_dict])[metadata['feature_names']]
+            with st.spinner("Splitting text into sentences and predicting..."):
+                # Split paragraph into sentences using spaCy
+                doc = nlp(user_text)
+                sentences = [sent.text.strip() for sent in doc.sents if len(sent.text.strip()) > 3]
                 
-                # Print requested checks immediately before prediction
-                print(features.columns.tolist())
-                print(features)
-                print(features.dtypes)
-                print(model.get_booster().feature_names)
-                
-                # Predict
-                proba_ai = model.predict_proba(features)[0, 1]
-                threshold = metadata['threshold']
-                is_ai = proba_ai >= threshold
-                confidence = proba_ai if is_ai else (1.0 - proba_ai)
-                
-                # Predict class card styling
-                if is_ai:
-                    st.markdown(
-                        f'<div class="prediction-card ai-card">'
-                        f'<h2>CLASSIFICATION: AI-GENERATED</h2>'
-                        f'<h3>Probability: {proba_ai:.1%} (Threshold: {threshold:.1%})</h3>'
-                        f'</div>',
-                        unsafe_allow_html=True
-                    )
+                if len(sentences) == 0:
+                    st.warning("Please enter a valid text block with complete sentences.")
                 else:
-                    st.markdown(
-                        f'<div class="prediction-card human-card">'
-                        f'<h2>CLASSIFICATION: HUMAN-WRITTEN</h2>'
-                        f'<h3>Probability of AI: {proba_ai:.1%} (Threshold: {threshold:.1%})</h3>'
-                        f'</div>',
-                        unsafe_allow_html=True
-                    )
-                
-                # Gauge representation using progress bar
-                st.write("**AI Probability Gauge**:")
-                st.progress(float(proba_ai))
-                st.write(f"The model predicted a **{proba_ai:.1%}** probability that the text is AI-generated.")
-                
-                # Display feature details in expandable table
-                with st.expander("📊 Show Extracted Features for this Text"):
-                    feature_display = pd.DataFrame({
-                        'Feature Name': list(features_dict.keys()),
-                        'Extracted Value': list(features_dict.values())
-                    })
-                    st.dataframe(feature_display, use_container_width=True, hide_index=True)
+                    results = []
+                    model_feats = model.get_booster().feature_names
+                    threshold = metadata['threshold']
                     
-                    st.markdown(
-                        "**Quick Guide on Key Features:**\n"
-                        "- `nominalization_ratio`: Counts words ending in `-ung`, `-heit`, `-keit`, `-tion`, `-sion` (common in administrative German).\n"
-                        "- `type_token_ratio`: Text vocabulary richness (lower values indicate repetitive/AI-like phrasing).\n"
-                        "- `citation_density`: References to sections/laws (e.g. `§ 35 VwVfG`)."
-                    )
+                    for sent in sentences:
+                        features_dict = extractor.extract_features(sent, nlp)
+                        features_df = pd.DataFrame([features_dict])[model_feats]
+                        proba_ai = model.predict_proba(features_df)[0, 1]
+                        
+                        results.append({
+                            'sentence': sent,
+                            'proba_ai': proba_ai,
+                            'is_ai': proba_ai >= threshold,
+                            'features': features_dict
+                        })
+                    
+                    # Overall Document Metrics
+                    total_sents = len(results)
+                    ai_sents = sum(1 for r in results if r['is_ai'])
+                    ai_ratio = ai_sents / total_sents
+                    avg_proba = np.mean([r['proba_ai'] for r in results])
+                    
+                    # Display overall card
+                    if ai_ratio >= 0.5:
+                        st.markdown(
+                            f'<div class="prediction-card ai-card">'
+                            f'<h2>DOCUMENT CLASSIFICATION: AI-GENERATED</h2>'
+                            f'<h3>{ai_sents}/{total_sents} sentences ({ai_ratio:.0%}) flagged as AI</h3>'
+                            f'<h4>Average Sentence AI Prob: {avg_proba:.1%} (Threshold: {threshold:.1%})</h4>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+                    elif ai_sents > 0:
+                        st.markdown(
+                            f'<div class="prediction-card warning-card">'
+                            f'<h2>DOCUMENT CLASSIFICATION: CONTAINS AI SEGMENTS</h2>'
+                            f'<h3>{ai_sents}/{total_sents} sentences ({ai_ratio:.0%}) flagged as AI</h3>'
+                            f'<h4>Average Sentence AI Prob: {avg_proba:.1%} (Threshold: {threshold:.1%})</h4>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+                    else:
+                        st.markdown(
+                            f'<div class="prediction-card human-card">'
+                            f'<h2>DOCUMENT CLASSIFICATION: HUMAN-WRITTEN</h2>'
+                            f'<h3>0/{total_sents} sentences flagged as AI</h3>'
+                            f'<h4>Average Sentence AI Prob: {avg_proba:.1%} (Threshold: {threshold:.1%})</h4>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+                    
+                    # 1. Interactive Highlighting Representation
+                    st.markdown("### 🔍 Highlighted Text View")
+                    highlighted_html = ""
+                    for r in results:
+                        highlight_class = "sentence-highlight-ai" if r['is_ai'] else "sentence-highlight-human"
+                        tooltip = f"AI Probability: {r['proba_ai']:.1%}"
+                        highlighted_html += f'<span class="{highlight_class}" title="{tooltip}">{r["sentence"]}</span> '
+                    
+                    st.markdown(f'<div style="line-height: 2.0; font-size: 1.1rem; padding: 15px; border-radius: 8px; border: 1px solid #ddd; background-color: white;">{highlighted_html}</div>', unsafe_allow_html=True)
+                    
+                    st.markdown("---")
+                    
+                    # 2. Detailed Sentence-by-Sentence breakdown
+                    st.markdown("### 📋 Sentence-by-Sentence Probability Breakdown")
+                    for idx, r in enumerate(results, start=1):
+                        style_class = "sentence-item-ai" if r['is_ai'] else "sentence-item-human"
+                        color = "#d32f2f" if r['is_ai'] else "#388e3c"
+                        
+                        st.markdown(
+                            f'<div class="sentence-item {style_class}">'
+                            f'<strong>Satz {idx}:</strong> "{r["sentence"]}"<br/>'
+                            f'<span style="color: {color};">AI Probability: {r["proba_ai"]:.1%}</span>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+                        st.progress(float(r['proba_ai']))
+                    
+                    st.markdown("---")
+                    
+                    # 3. Expandable detailed feature inspection
+                    with st.expander("📊 Inspect Extracted Feature Values"):
+                        selected_sent_idx = st.selectbox(
+                            "Select sentence to view exact features:",
+                            options=list(range(1, len(results) + 1)),
+                            format_func=lambda x: f"Satz {x}: {results[x-1]['sentence'][:50]}..."
+                        )
+                        
+                        features_selected = results[selected_sent_idx - 1]['features']
+                        feature_display = pd.DataFrame({
+                            'Feature Name': list(features_selected.keys()),
+                            'Extracted Value': list(features_selected.values())
+                        })
+                        st.dataframe(feature_display, use_container_width=True, hide_index=True)
     else:
         st.info("Enter German text on the left or select an example preset to analyze.")

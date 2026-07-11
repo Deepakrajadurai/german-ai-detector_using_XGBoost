@@ -176,42 +176,20 @@ class LegalFeatureExtractor:
 
 def main():
     print("=" * 60)
-    print("XGBOOST ML PIPELINE: german-ai-detector (Full Dataset)")
+    print("XGBOOST ML PIPELINE: german-ai-detector (Sentence-Level)")
     print("=" * 60)
 
-    # 1. LOAD DATASET
-    csv_path = DATA_DIR / "training_pair_v5_clean.csv"
-    print(f"Loading dataset from: {csv_path}...")
-    df = pd.read_csv(csv_path)
-    print(f"Loaded {len(df):,} total samples.")
+    # 1. LOAD PRE-SPLIT SENTENCE DATASET
+    print("Loading pre-split sentence datasets...")
+    train_df = pd.read_parquet(PROCESSED_DIR / "train_sentences.parquet")
+    val_df = pd.read_parquet(PROCESSED_DIR / "val_sentences.parquet")
+    test_df = pd.read_parquet(PROCESSED_DIR / "test_sentences.parquet")
+    
+    print(f"   Train: {len(train_df):,} sentences (Human: {sum(train_df['label']==0):,}, AI: {sum(train_df['label']==1):,})")
+    print(f"   Val:   {len(val_df):,} sentences (Human: {sum(val_df['label']==0):,}, AI: {sum(val_df['label']==1):,})")
+    print(f"   Test:  {len(test_df):,} sentences (Human: {sum(test_df['label']==0):,}, AI: {sum(test_df['label']==1):,})")
 
-    # Clean missing values
-    df = df.dropna(subset=['text'])
-    df = df[df['text'].astype(str).str.strip() != ""]
-    print(f"After cleaning NaNs and empty rows: {len(df):,} samples.")
-
-    # 2. STRATIFIED SPLITTING
-    print("\nSplitting dataset into Train (80%), Val (10%), and Test (10%)...")
-    # First split: Train vs Temp
-    train_df, temp_df = train_test_split(
-        df,
-        test_size=0.2,
-        random_state=42,
-        stratify=df['label']
-    )
-    # Second split: Val vs Test
-    val_df, test_df = train_test_split(
-        temp_df,
-        test_size=0.5,
-        random_state=42,
-        stratify=temp_df['label']
-    )
-
-    print(f"   Train: {len(train_df):,} rows (Human: {sum(train_df['label']==0):,}, AI: {sum(train_df['label']==1):,})")
-    print(f"   Val:   {len(val_df):,} rows (Human: {sum(val_df['label']==0):,}, AI: {sum(val_df['label']==1):,})")
-    print(f"   Test:  {len(test_df):,} rows (Human: {sum(test_df['label']==0):,}, AI: {sum(test_df['label']==1):,})")
-
-    # 3. FEATURE EXTRACTION
+    # 2. FEATURE EXTRACTION
     print("\nLoading spaCy German model (de_core_news_sm)...")
     nlp = spacy.load("de_core_news_sm")
     extractor = LegalFeatureExtractor()
@@ -223,19 +201,19 @@ def main():
 
     print("\n[RUNNING] Extracting features for Train...")
     t0 = time.time()
-    train_features = extractor.extract_features_batch(train_df['text'].tolist(), nlp, n_process=n_process)
+    train_features = extractor.extract_features_batch(train_df['sentence'].tolist(), nlp, n_process=n_process)
     train_features['label'] = train_df['label'].values
     print(f"Train extraction took: {time.time()-t0:.2f} seconds")
 
     print("\n[RUNNING] Extracting features for Val...")
     t0 = time.time()
-    val_features = extractor.extract_features_batch(val_df['text'].tolist(), nlp, n_process=n_process)
+    val_features = extractor.extract_features_batch(val_df['sentence'].tolist(), nlp, n_process=n_process)
     val_features['label'] = val_df['label'].values
     print(f"Val extraction took: {time.time()-t0:.2f} seconds")
 
     print("\n[RUNNING] Extracting features for Test...")
     t0 = time.time()
-    test_features = extractor.extract_features_batch(test_df['text'].tolist(), nlp, n_process=n_process)
+    test_features = extractor.extract_features_batch(test_df['sentence'].tolist(), nlp, n_process=n_process)
     test_features['label'] = test_df['label'].values
     print(f"Test extraction took: {time.time()-t0:.2f} seconds")
 
