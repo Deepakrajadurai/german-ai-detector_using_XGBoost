@@ -21,7 +21,7 @@ We evaluated the behavior of our two primary model architectures:
 
 To evaluate how model capacity affects generalization, we trained both architectures across a sweep of tree depths (`max_depth` from 2 to 12). 
 
-![Model Complexity Curves](C:\Users\vijayakr\.gemini\antigravity-ide\brain\fd902ee2-9080-46d2-9a74-060bfd8e6b5d\model_complexity_curves.png)
+![Model Complexity Curves](figures/model_complexity_curves.png)
 
 ### Numerical Results (Validation Curves)
 
@@ -70,7 +70,7 @@ To evaluate how model capacity affects generalization, we trained both architect
 
 To evaluate if the model is data-limited or has reached its capacity, we analyzed the learning curves of the final **Optimized Model** by varying the training set size from 10% (24k sentences) to 100% (240k sentences).
 
-![Model Learning Curves](C:\Users\vijayakr\.gemini\antigravity-ide\brain\fd902ee2-9080-46d2-9a74-060bfd8e6b5d\model_learning_curves.png)
+![Model Learning Curves](figures/model_learning_curves.png)
 
 ### Numerical Results (Learning Curves)
 
