@@ -1,105 +1,100 @@
-# 🇩🇪 German AI Detector (XGBoost)
+# 🇩🇪 German AI Detector (XGBoost Classifier)
 
-An optimized machine learning pipeline and interactive web application designed to distinguish **Human-Written** German texts from **AI-Generated** German texts, specifically optimized for **administrative and legal contexts** (Verwaltungssprache). 
+An optimized machine learning pipeline and interactive web application designed to distinguish **Human-Written** German texts from **AI-Generated** German texts, specifically optimized for **administrative and legal contexts** (*Verwaltungssprache*).
 
-The detector leverages **18 handcrafted linguistic, lexical, and syntactic features** processed via spaCy and trained using an optimized **XGBoost Classifier**. It achieves a state-of-the-art **97.29% overall accuracy** while strictly controlling the **False Positive Rate (FPR) at 1.69%** (minimizing the risk of falsely accusing human authors).
+The detector leverages **17 handcrafted linguistic, lexical, and syntactic features** processed via spaCy and trained using an optimized **XGBoost Classifier**. It achieves a state-of-the-art **98.02% overall accuracy** on unseen sentence-level test data while strictly controlling the **False Positive Rate (FPR) at 1.82%** (minimizing the risk of falsely accusing human authors of using AI).
 
 ---
 
 ## 📊 Performance & Results
 
-To ensure the detector is reliable for real-world administrative use, our primary constraint was to keep the **False Positive Rate (FPR) below 2.0%**. Through hyperparameter tuning and decision threshold optimization, we achieved the following metrics:
+To ensure the detector is reliable for real-world administrative use, our primary constraint was to keep the **False Positive Rate (FPR) below 2.0%** (minimizing human texts falsely flagged as AI). Through hyperparameter grid search and decision threshold calibration on the complete dataset containing **435,178 sentences**, the model achieved the following performance on unseen test data:
 
-### Partition Performance Summary
+### Performance Comparison (Unseen Test Set)
 
-| Metric | Train Set (80%) | Validation Set (10%) | Test Set (10%) | Entire Dataset (100%) |
-| :--- | :---: | :---: | :---: | :---: |
-| **Total Samples** | 348,142 | 43,518 | 43,518 | **435,178** |
-| **Accuracy** | 97.36% | 97.03% | 97.02% | **97.29%** |
-| **Precision** | 98.33% | 97.99% | 98.14% | **98.28%** |
-| **Recall (Sensitivity)** | 96.35% | 96.03% | 95.85% | **96.27%** |
-| **F1-Score** | 97.33% | 97.00% | 96.98% | **97.26%** |
-| **ROC-AUC** | 99.76% | 99.71% | 99.74% | **99.76%** |
-| **False Positive Rate (FPR)** | 1.64% | 1.97% | 1.82% | **1.69%** |
+| Metric | Baseline Model | Optimized Model | Progress / Change |
+| :--- | :---: | :---: | :---: |
+| **Accuracy** | 97.02% | **98.02%** | **+1.00%** (33% error reduction) |
+| **Precision** | 98.14% | **98.17%** | **+0.03%** |
+| **Recall (Sensitivity)** | 95.85% | **97.87%** | **+2.02%** (FN cut in half) |
+| **F1-Score** | 96.98% | **98.02%** | **+1.04%** |
+| **ROC-AUC** | 99.74% | **99.83%** | **+0.09%** |
+| **False Positive Rate (FPR)** | 1.82% | **1.82%** | **0.00%** (Held stable under 2.0% constraint) |
+| **False Negatives (Missed AI)** | 903 | **463** | **-440** (48.7% reduction in misses) |
+| **False Positives (Human Flagged)** | 396 | **397** | **+1** |
 
-### 📈 Visualizations
+### Optimized Model Confusion Matrix (Test Set)
 
-#### 1. Confusion Matrix (Entire Dataset)
-The confusion matrix below illustrates predictions across all **435,178** samples. Out of 217,589 human-written sentences, only 3,675 were incorrectly classified as AI-generated, satisfying the <2% FPR constraint.
+- **True Negatives (TN)**: 21,362 (Human sentences correctly identified)
+- **True Positives (TP)**: 21,296 (AI sentences correctly identified)
+- **False Positives (FP)**: 397 (Human sentences incorrectly flagged as AI)
+- **False Negatives (FN)**: 463 (AI sentences missed/classified as Human)
 
-![Confusion Matrix](reports/figures/confusion_matrix_entire.png)
+---
 
-#### 2. Feature Importances (Top 15 Features)
-The relative contribution of linguistic features to the model's decisions. Nominalization ratio (Nominalstil) and Type-Token Ratio (lexical diversity) carry the highest predictive power.
+## 🛠️ Feature Engineering & Pruning
 
-![Feature Importances](reports/figures/feature_importance_clean.png)
+Rather than utilizing heavy, computationally expensive neural networks (which act as black boxes), this project extracts German-specific syntactic and lexical features using the spaCy German NLP model (`de_core_news_sm`). This keeps inference near-instantaneous (running in milliseconds on CPU) and highly explainable.
+
+The original model used **18 handcrafted features**, but during model optimization, the **`closing_ratio`** feature was pruned (dropped) as it yielded a feature importance of exactly `0.0`, leaving **17 active features**:
+
+### Top Predictors in the Optimized Model
+
+1. **`modal_particle_ratio`** (27.02% Importance) – Extremely powerful indicator. AI-generated text rarely outputs typical German modal particles (e.g., *ja*, *doch*, *wohl*, *halt*), making it a massive differentiator.
+2. **`parenthetical_ratio`** (16.33% Importance) – Frequency of text in parentheses `(...)`, which is common in structured administrative briefs.
+3. **`capitalization_ratio`** (13.62% Importance) – Density of capitalized tokens (critical for German noun distribution).
+4. **`man_ratio`** (8.27% Importance) – Density of the indefinite pronoun *man*.
+
+### Complete Active Feature Set (17 Features)
+
+* **Lexical & Diversity**:
+  - `avg_word_length`: Average character length of words.
+  - `type_token_ratio`: Vocabulary richness (Type-Token Ratio) to detect lexical diversity.
+  - `capitalization_ratio`: Ratio of capitalized words to identify noun utilization patterns.
+* **Grammar & Syntactic Complexity**:
+  - `passive_ratio`: Frequency of passive auxiliary verbs (*wird, werden, wurde, worden*).
+  - `clause_density`: Density of subjunctions introducing subordinate clauses (*dass, weil, wenn*, etc.).
+  - `parenthetical_ratio`: Density of parentheses `(...)`.
+  - `punctuation_entropy`: Diversity and complexity of punctuation usage.
+  - `man_ratio`: Frequency of the indefinite pronoun *man*.
+* **Register & Domain Jargon**:
+  - `jargon_consistency`: Density of standard legal vocabulary (*verwaltungsakt, behörde, verfahren*, etc.).
+  - `authority_ratio`: Mentions of official administrative bodies (*behörde, amt, gericht*, etc.).
+  - `citation_density`: Legal citation formats (e.g., *§ 35, Art. 12*).
+  - `modal_particle_ratio`: Frequency of German modal particles (*ja, doch, halt, eben, mal*).
+* **Structural**:
+  - `structure_entropy`: Section/bullet numbering and hierarchy markers.
+  - `abbreviation_ratio`: Frequency of administrative abbreviations (e.g., *Abs., S., VwVfG*).
+  - `function_word_ratio`: Ratio of conjunctions and articles (*der, die, das, und, oder*).
+  - `word_count`: Total token count of the input.
+
+---
+
+## 📐 Pipeline Architecture
+
+The project operates in five distinct pipeline phases to process the raw dataset, train, optimize, and serve the classifier:
+
+```mermaid
+graph TD
+    A[Raw CSV Data] -->|Sentence Splitter| B[train/val/test_sentences.parquet]
+    B -->|Multiprocessing Extraction| C[train/val/test_clean_features.parquet]
+    C -->|Grid Search Tuning & Feature Pruning| D[Optimal XGBoost Configuration]
+    D -->|Decision Threshold Optimization| E[Final Model: xgboost_model_optimized.pkl]
+    E -->|Real-Time Inference| F[Streamlit UI app.py]
+```
 
 ---
 
 ## 🗃️ Dataset Overview
 
-The model was trained and evaluated on `data/training_pair_v5_clean.csv`, a balanced dataset comprising **435,178 sentences** (217,589 human-written and 217,589 AI-generated).
-
-- **Human-Written Data**: Synthesized from official German administrative documents, notifications, and legal codices (e.g., Verwaltungsverfahrensgesetz - VwVfG).
-- **AI-Generated Data**: Generated using advanced Large Language Models (LLMs) instructed to produce text mimicking German administrative and legal registers.
-- **Data Splitting**: Split into **80% training** (348,142 sentences), **10% validation** (43,518 sentences), and **10% testing** (43,518 sentences) partitions to ensure robust evaluation.
-
----
-
-## 🧪 Handcrafted Feature Engineering
-
-Instead of using heavy, computationally expensive neural networks, this project utilizes **18 handcrafted syntactic and lexical features** extracted using the spaCy German NLP model (`de_core_news_sm`). This keeps inference near-instantaneous and highly explainable:
-
-1. **`nominalization_ratio`**: Density of nouns ending in typical administrative suffixes (`-ung`, `-heit`, `-keit`, `-tion`, `-sion`).
-2. **`type_token_ratio`**: Vocabulary richness (TTR). AI-generated texts tend to have lower lexical diversity.
-3. **`punctuation_entropy`**: The complexity and diversity of punctuation usage.
-4. **`function_word_ratio`**: Proportions of articles and conjunctions (e.g., *der, die, das, und, oder*).
-5. **`avg_word_length`**: Average character length of words.
-6. **`capitalization_ratio`**: Ratio of capitalized words (critical for detecting noun utilization in German).
-7. **`passive_ratio`**: Frequency of passive voice auxiliary verbs (*wird, werden, wurde, worden*).
-8. **`jargon_consistency`**: Density of standard legal words (*verwaltungsakt, behörde, ermessen*, etc.).
-9. **`abbreviation_ratio`**: Frequency of abbreviations (e.g., *Abs., S., VwVfG*).
-10. **`clause_density`**: Density of subjunctions introducing subordinate clauses (*dass, weil, wenn*, etc.).
-11. **`citation_density`**: Presence of legal citation formats (e.g., *§ 35, Art. 12*).
-12. **`authority_ratio`**: Mentions of administrative bodies (*Behörde, Amt, Gericht*).
-13. **`parenthetical_ratio`**: Utilization of parentheses `(...)`.
-14. **`modal_particle_ratio`**: Usage frequency of German modal particles (*ja, doch, halt, eben, mal*).
-15. **`man_ratio`**: Ratio of the indefinite pronoun *man*.
-16. **`structure_entropy`**: Paragraph/bullet point structural markers.
-17. **`closing_ratio`**: Standardized formal closings (*mit freundlichen Grüßen*).
-18. **`word_count`**: Total word count.
+The dataset (`data/training_pair_v5_clean.csv`) consists of **435,178 sentences** (fully balanced: 217,589 human-written and 217,589 AI-generated):
+- **Human-Written**: Sourced from official German Bundestag debate transcripts, government announcements, and federal legal codices.
+- **AI-Generated**: Synthesized from advanced LLMs prompted to rewrite and paraphrase human texts into official, formal administrative German.
+- **Data Splitting**: Split into **80% training** (348,142 sentences), **10% validation** (43,518 sentences), and **10% testing** (43,518 sentences) partitions.
 
 ---
 
-## 🛠️ Project Structure
-
-```
-german-ai-detector/
-├── data/
-│   ├── training_pair_v5_clean.csv      # Balanced dataset (435,178 sentences)
-│   └── processed/                      # Extracted feature Parquet files
-├── models/
-│   ├── xgboost_model_optimized.pkl     # Final optimized XGBoost model
-│   └── model_metadata_optimized.json   # Model performance metadata and configuration
-├── reports/
-│   ├── figures/                        # Generated evaluation charts
-│   └── final_report.md                 # Detailed training & optimization report
-├── src/
-│   ├── 01_split_human_data.py          # Data ingestion and splitting
-│   ├── 02_generate_ai.py               # AI data generation script
-│   ├── 03_combine_dataset.py           # Dataset compilation script
-│   ├── 04_feature_extraction.py        # SpaCy-based feature engineering
-│   ├── 05_train_xgboost.py             # Basic model training
-│   ├── optimize_xgboost.py             # Class weighting & threshold optimization
-│   ├── app.py                          # Streamlit UI
-│   └── train_clean_xgboost_pipeline.py # End-to-end pipeline execution
-├── requirements.txt                    # Project dependencies
-└── README.md                           # Project documentation
-```
-
----
-
-## 🚀 How to Run the Project
+## 🚀 Installation & Usage
 
 ### 1. Installation
 Clone the repository and install the dependencies:
@@ -108,16 +103,43 @@ pip install -r requirements.txt
 python -m spacy download de_core_news_sm
 ```
 
-### 2. Run Interactive Web UI
-Launch the Streamlit web application to test arbitrary German texts:
+### 2. Run the Interactive Streamlit Web UI
+Launch the interactive dashboard to test arbitrary German texts with real-time visual highlighting of AI-generated sentences:
 ```bash
 python -m streamlit run src/app.py
 ```
-Open [http://localhost:8501](http://localhost:8501) in your browser. The application loads the optimized XGBoost model and spaCy pipeline, enabling you to select preset example sentences or type custom administrative German texts for real-time classification.
+Open [http://localhost:8501](http://localhost:8501) in your browser. The app splits input paragraphs, runs sentence-level inference, highlights AI sentences in light red and human sentences in light green, and exposes a detailed features breakdown.
 
-### 3. Retrain and Optimize Model
-To run the full feature extraction, train, and threshold optimization pipeline:
-```bash
-python src/train_clean_xgboost_pipeline.py
-```
-This script parallelizes spaCy feature extraction using Python multiprocessing, trains the XGBoost classifier, optimizes the decision threshold to target an FPR < 2%, and exports performance graphs to the `reports/figures/` directory.
+### 3. Pipeline Execution (Retraining & Optimization)
+To execute the pipeline end-to-end:
+
+1. **Preprocess and Split Sentences**:
+   ```bash
+   python -X utf8 src/sentence_split_pipeline.py
+   ```
+2. **Feature Extraction & Baseline Model Training**:
+   ```bash
+   python -X utf8 src/train_clean_xgboost_pipeline.py
+   ```
+   *Note: Feature extraction utilizes Python multiprocessing across all available CPU cores (completes 435k rows in under 8 minutes on a 16-core system).*
+3. **Hyperparameter Tuning & Threshold Calibration**:
+   ```bash
+   python -X utf8 src/optimize_xgboost.py
+   ```
+   Performs grid search, prunes the `closing_ratio` feature, optimizes the classification decision threshold to enforce a False Positive Rate (FPR) $< 2.0\%$, and saves the final model to `models/xgboost_model_optimized.pkl`.
+
+---
+
+## 🛡️ Project Defense & Technical Highlights
+
+* **Interpretability**: Unlike transformer-based deep learning models, XGBoost allows us to extract explicit feature importances and inspect the exact linguistic elements (like modal particles and capitalization ratios) driving decisions.
+* **CPU Efficiency**: Extremely lightweight spaCy + XGBoost inference means predictions are computed in milliseconds on standard CPU cores, avoiding expensive GPU cloud hosting.
+* **Sentence-Level Calibration**: Real-time user checks usually involve single-sentence inputs. By shifting our training and inference from paragraph-level to sentence-level slices, we resolved length-dependent distribution shifts (e.g., on Type-Token Ratio and Punctuation Entropy) that previously biased shorter texts toward the human class.
+
+---
+
+## 🚫 Limitations & Future Work
+
+* **Domain Constraints**: Because the model is trained on administrative, parliamentary, and legal German registers, accuracy may vary on other text types (e.g., creative writing, blog posts, casual chats).
+* **Conversational AI Paraphrasing**: If an LLM is prompted to write in a conversational, informal tone containing frequent German modal particles (*ja*, *doch*, etc.), the model may struggle to flag it.
+* **Adversarial Mitigation**: Ensembles combining this model with TF-IDF character/word n-gram models can help defend against targeted prompts designed to avoid administrative noun clusters.
